@@ -1,0 +1,180 @@
+
+/* Custom Scrollbar */
+
+::-webkit-scrollbar {
+
+  width: 6px;
+
+  height: 6px;
+
+}
+
+::-webkit-scrollbar-track {
+
+  background: #020617;
+
+}
+
+::-webkit-scrollbar-thumb {
+
+  background: #1e293b;
+
+  border-radius: 4px;
+
+}
+
+::-webkit-scrollbar-thumb:hover {
+
+  background: #334155;
+
+}
+
+
+/* Hindsight Memory Card Glow Animation */
+
+.memory-glow {
+
+  box-shadow: 0 0 20px -5px rgba(168, 85, 247, 0.25);
+
+  transition: all 0.3s ease-in-out;
+
+}
+
+.memory-glow:hover {
+
+  box-shadow: 0 0 25px 2px rgba(168, 85, 247, 0.4);
+
+}
+
+
+/* Terminal Log Animations */
+
+@keyframes fadeIn {
+
+  from {
+
+    opacity: 0;
+
+    transform: translateY(4px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: translateY(0);
+
+  }
+
+}
+
+.log-entry {
+
+  animation: fadeIn 0.2s ease-out forwards;
+
+}
+
+
+/* Pulse animation for Live Agent status */
+
+.pulse-indicator {
+
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+
+  animation: pulse-ring 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
+
+}
+
+@keyframes pulse-ring {
+
+  to {
+
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+
+  }
+
+}
+
+
+/* Glassmorphism Cards */
+
+.glass-card {
+
+  background: rgba(15, 23, 42, 0.75);
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(148, 163, 184, 0.1);
+
+}
+
+
+/* Animated Gradient Background */
+
+body {
+
+  background:
+
+    radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 40%),
+
+    radial-gradient(circle at bottom left, rgba(168,85,247,0.10), transparent 40%),
+
+    #020617;
+
+}
+
+
+/* Floating Effect */
+
+.float-card {
+
+  transition: all 0.3s ease;
+
+}
+
+.float-card:hover {
+
+  transform: translateY(-6px);
+
+}
+
+
+/* Status Glow */
+
+.live-status {
+
+  box-shadow: 0 0 15px rgba(34,197,94,0.6);
+
+}
+
+
+/* Border Animation */
+
+@keyframes borderFlow {
+
+  0% {
+
+    border-color: #6366f1;
+
+  }
+
+  50% {
+
+    border-color: #a855f7;
+
+  }
+
+  100% {
+
+    border-color: #6366f1;
+
+  }
+
+}
+
+.animated-border {
+
+  animation: borderFlow 3s infinite;
+
+}

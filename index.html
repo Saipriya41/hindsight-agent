@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>DevOps Incident Response Agent</title>
+
+  <!-- Tailwind CSS -->
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  >
+
+  <!-- Custom CSS -->
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: "#6366f1",
+              600: "#4f46e5"
+            },
+            memory: {
+              500: "#a855f7",
+              400: "#c084fc",
+              900: "#3b0764"
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-mono antialiased">
+
+  <!-- TOP NAVIGATION -->
+
+  <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur-xl sticky top-0 z-50">
+
+```
+<div class="max-w-[1800px] mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+  <!-- Brand -->
+  <div class="flex items-center gap-3">
+
+    <div class="h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>
+
+    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+      <i class="fa-solid fa-robot text-indigo-400"></i>
+      OpsMind AI
+    </h1>
+
+    <span class="bg-indigo-950 text-indigo-300 text-xs px-2.5 py-1 rounded-full border border-indigo-800">
+      Agent Active
+    </span>
+
+  </div>
+
+
+  <!-- System Status -->
+  <div class="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+
+    <span class="flex items-center gap-1.5">
+      <i class="fa-solid fa-brain text-purple-400"></i>
+      Hindsight SDK Connected
+    </span>
+
+    <span class="hidden md:block border-l border-slate-800 h-4"></span>
+
+    <span class="flex items-center gap-1.5">
+      <i class="fa-solid fa-bolt text-yellow-400"></i>
+      Groq Engine Ready
+    </span>
+
+  </div>
+
+</div>
+```
+
+  </header>
+
+  <!-- MAIN DASHBOARD -->
+
+  <main class="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-[1800px] w-full mx-auto">
+
+```
+<!-- COLUMN 1 : LIVE ERROR LOG -->
+
+<section class="glass-card float-card animated-border rounded-xl overflow-hidden flex flex-col min-h-[650px]">
+
+  <!-- Header -->
+  <div class="px-4 py-3 border-b border-slate-800 bg-slate-900/80 flex justify-between items-center">
+
+    <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+      <i class="fa-solid fa-terminal text-red-400"></i>
+      Live Error Log Stream
+    </h2>
+
+    <span
+      id="errorStatus"
+      class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+      Monitoring
+    </span>
+
+  </div>
+
+
+  <!-- Simulator Buttons -->
+
+  <div class="p-3 bg-slate-950/50 border-b border-slate-800/80 flex flex-wrap gap-2">
+
+    <button
+      type="button"
+      onclick="triggerSim('db')"
+      class="text-xs bg-slate-800 hover:bg-red-900/50 hover:border-red-500/50 text-slate-300 hover:text-red-300 px-3 py-2 rounded transition border border-slate-700">
+
+      <i class="fa-solid fa-database mr-1"></i>
+      Simulate DB Timeout
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="triggerSim('oom')"
+      class="text-xs bg-slate-800 hover:bg-orange-900/50 hover:border-orange-500/50 text-slate-300 hover:text-orange-300 px-3 py-2 rounded transition border border-slate-700">
+
+      <i class="fa-solid fa-memory mr-1"></i>
+      Simulate Redis OOM
+
+    </button>
+
+  </div>
+
+
+  <!-- Live Logs -->
+
+  <div
+    id="logStream"
+    class="p-4 flex-1 font-mono text-xs overflow-y-auto space-y-3 bg-slate-950 text-slate-300">
+
+    <div class="text-slate-500">
+      [19:35:01 STDOUT] Gateway routing healthcheck OK.
+    </div>
+
+    <div class="text-slate-500">
+      [19:35:05 STDOUT] /api/v1/orders 200 OK - 42ms
+    </div>
+
+    <div class="p-3 rounded-lg bg-red-950/30 border border-red-500/20">
+
+      <div class="text-red-400 font-bold">
+        [19:35:12 FATAL ERROR 500]
+      </div>
+
+      <div class="text-red-300 mt-1">
+        PostgreSQL connection pool exhausted at /checkout endpoint.
+      </div>
+
+      <div class="text-red-400/70 mt-1 text-[11px]">
+        sqlalchemy.exc.TimeoutError:
+        QueuePool limit exceeded
+      </div>
+
+    </div>
+
+    <div class="text-amber-400/80">
+      [19:35:13 WARN] Circuit breaker tripped for service: payment-gateway
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- COLUMN 2 : HINDSIGHT MEMORY -->
+
+<section class="glass-card float-card animated-border rounded-xl overflow-hidden flex flex-col min-h-[650px] relative">
+
+  <!-- Purple Glow -->
+
+  <div class="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+
+  <!-- Header -->
+
+  <div class="px-4 py-3 border-b border-purple-900/40 bg-purple-950/20 flex justify-between items-center relative z-10">
+
+    <h2 class="text-sm font-semibold text-purple-300 flex items-center gap-2">
+
+      <i class="fa-solid fa-brain text-purple-400"></i>
+
+      Hindsight Memory Recall
+
+    </h2>
+
+
+    <!-- ONLY ONE memoryMatch -->
+
+    <span
+      id="memoryMatch"
+      class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-sans font-medium">
+
+      🧠 Match Found (94.8%)
+
+    </span>
+
+  </div>
+
+
+  <!-- Memory Content -->
+
+  <div class="p-4 flex-1 space-y-4 overflow-y-auto relative z-10">
+
+
+    <!-- Incident Card -->
+
+    <div class="bg-purple-950/30 border border-purple-800/50 rounded-lg p-4 space-y-4">
+
+      <div class="flex justify-between items-start gap-3">
+
+        <div>
+
+          <span class="text-[10px] text-purple-400 uppercase tracking-wider font-semibold">
+            Matched Past Incident
+          </span>
+
+          <h3
+            id="incidentTitle"
+            class="text-sm font-bold text-slate-100 mt-1">
+
+            Incident #204: Connection Leak in DB Proxy
+
+          </h3>
+
+        </div>
+
+        <span class="text-[11px] text-slate-400 whitespace-nowrap">
+          14 days ago
+        </span>
+
+      </div>
+
+
+      <!-- Root Cause -->
+
+      <p
+        id="memoryCause"
+        class="text-xs text-slate-300 font-sans leading-relaxed">
+
+        Hindsight memory retrieved root cause:
+        An unindexed JOIN query in release
+
+        <code class="text-purple-300 bg-purple-900/40 px-1 py-0.5 rounded">
+          v2.4.1
+        </code>
+
+        held open DB connections under spike load.
+
+      </p>
+
+
+      <!-- Resolution -->
+
+      <div
+        id="resolutionActions"
+        class="bg-slate-950 p-2.5 rounded border border-slate-800 text-xs space-y-1">
+
+        <div class="text-slate-400 text-[11px]">
+          Previous Resolution Action:
+        </div>
+
+        <div class="text-emerald-400 font-mono">
+          1. Scaled DB connections dynamically
+        </div>
+
+        <div class="text-emerald-400 font-mono">
+          2. Rolled back deployment to v2.4.0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Learning State -->
+
+    <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800 text-xs space-y-2 font-sans">
+
+      <div class="flex justify-between text-slate-400 text-[11px]">
+
+        <span>
+          Agent Learning State
+        </span>
+
+        <span class="text-purple-400">
+          Iteration #8
+        </span>
+
+      </div>
+
+
+      <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+
+        <div
+          id="learningBar"
+          class="bg-purple-500 h-full rounded-full transition-all duration-500"
+          style="width: 85%;">
+        </div>
+
+      </div>
+
+
+      <p class="text-[11px] text-slate-400">
+
+        Agent confidence boosted by prior post-mortem learnings stored in Vectorize memory.
+
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- COLUMN 3 : RUNBOOK -->
+
+<section class="glass-card float-card animated-border rounded-xl overflow-hidden flex flex-col min-h-[650px]">
+
+  <!-- Header -->
+
+  <div class="px-4 py-3 border-b border-slate-800 bg-slate-900/80 flex justify-between items-center">
+
+    <h2 class="text-sm font-semibold text-emerald-400 flex items-center gap-2">
+
+      <i class="fa-solid fa-gears"></i>
+
+      Runbook Execution Panel
+
+    </h2>
+
+
+    <span
+      id="runbookStatus"
+      class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+
+      Ready
+
+    </span>
+
+  </div>
+
+
+  <!-- Runbook Body -->
+
+  <div class="p-4 flex flex-col justify-between space-y-4 flex-1">
+
+
+    <!-- Mitigation Strategy -->
+
+    <div class="space-y-3 font-sans">
+
+      <h3 class="text-xs uppercase text-slate-400 font-bold tracking-wider">
+
+        Suggested Mitigation Strategy
+
+      </h3>
+
+
+      <div class="space-y-2 text-xs">
+
+
+        <!-- Step 1 -->
+
+        <div class="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-start gap-2">
+
+          <input
+            type="checkbox"
+            checked
+            disabled
+            class="mt-0.5 accent-emerald-500">
+
+          <span class="text-slate-300">
+
+            Identify faulty query parameters from Hindsight telemetry history.
+
+          </span>
+
+        </div>
+
+
+        <!-- Step 2 -->
+
+        <div class="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-start gap-2">
+
+          <input
+            type="checkbox"
+            id="step2"
+            class="mt-0.5 accent-emerald-500">
+
+          <span
+            id="step2Text"
+            class="text-slate-300">
+
+            Increase connection pool limit to 50 on PgBouncer proxy.
+
+          </span>
+
+        </div>
+
+
+        <!-- Step 3 -->
+
+        <div class="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-start gap-2">
+
+          <input
+            type="checkbox"
+            id="step3"
+            class="mt-0.5 accent-emerald-500">
+
+          <span
+            id="step3Text"
+            class="text-slate-300">
+
+            Trigger rollback to stable release image
+
+            <code class="text-indigo-300">
+              v2.4.0
+            </code>
+
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Action Buttons -->
+
+    <div class="space-y-2 pt-2 border-t border-slate-800">
+
+
+      <button
+        id="execBtn"
+        type="button"
+        onclick="executeRunbook()"
+        class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-2.5 px-4 rounded text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50">
+
+        <i class="fa-solid fa-play"></i>
+
+        Execute Auto-Fix Runbook
+
+      </button>
+
+
+      <button
+        id="saveBtn"
+        type="button"
+        onclick="saveMemory()"
+        class="w-full bg-purple-900/40 hover:bg-purple-900/70 text-purple-300 border border-purple-700/50 py-2 px-4 rounded text-xs transition flex items-center justify-center gap-2">
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Save Resolution to Hindsight Memory
+
+      </button>
+
+    </div>
+
+
+    <!-- Execution Console -->
+
+    <div
+      id="outputConsole"
+      class="bg-slate-950 p-3 rounded border border-slate-800 text-[11px] text-slate-400 min-h-[120px] max-h-[180px] overflow-y-auto font-mono">
+
+      <div class="text-slate-500">
+        &gt; Agent initialized.
+      </div>
+
+      <div class="text-slate-500">
+        &gt; Awaiting incident simulation...
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <script>
+
+
+    /* CURRENT TIME */
+
+    function getCurrentTime() {
+
+      return new Date().toLocaleTimeString();
+
+    }
+
+
+
+    /* CONSOLE MESSAGE */
+
+    function addConsoleMessage(message, colorClass) {
+
+      const outputConsole =
+        document.getElementById("outputConsole");
+
+      if (!outputConsole) {
+        return;
+      }
+
+      outputConsole.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="${colorClass || "text-slate-400"} mt-1">
+            &gt; ${message}
+          </div>
+        `
+      );
+
+      outputConsole.scrollTop =
+        outputConsole.scrollHeight;
+
+    }
+
+
+
+    /* INCIDENT SIMULATOR */
+
+    function triggerSim(type) {
+
+
+      const logStream =
+        document.getElementById("logStream");
+
+      const memoryMatch =
+        document.getElementById("memoryMatch");
+
+      const incidentTitle =
+        document.getElementById("incidentTitle");
+
+      const memoryCause =
+        document.getElementById("memoryCause");
+
+      const resolutionActions =
+        document.getElementById("resolutionActions");
+
+      const errorStatus =
+        document.getElementById("errorStatus");
+
+      const runbookStatus =
+        document.getElementById("runbookStatus");
+
+      const step2Text =
+        document.getElementById("step2Text");
+
+      const step3Text =
+        document.getElementById("step3Text");
+
+
+      if (
+        !logStream ||
+        !memoryMatch ||
+        !incidentTitle ||
+        !memoryCause ||
+        !resolutionActions
+      ) {
+
+        console.error("Required elements not found.");
+
+        return;
+
+      }
+
+
+      const time =
+        getCurrentTime();
+
+      let log = "";
+
+
+
+      /* DATABASE TIMEOUT */
+
+      if (type === "db") {
+
+
+        log = `
+
+          <div class="p-3 rounded-lg bg-red-950/40 border border-red-500/30">
+
+            <div class="flex justify-between items-center gap-2">
+
+              <span class="text-red-400 font-bold">
+
+                [${time}] FATAL ERROR 500
+
+              </span>
+
+              <span class="text-slate-500">
+
+                payment-gateway
+
+              </span>
+
+            </div>
+
+
+            <div class="text-red-300 mt-2">
+
+              PostgreSQL connection pool exhausted
+
+            </div>
+
+
+            <div class="text-slate-500 mt-1">
+
+              /api/v1/checkout
+
+            </div>
+
+
+            <div class="text-red-400/70 mt-1 text-[11px]">
+
+              sqlalchemy.exc.TimeoutError:
+              QueuePool limit exceeded
+
+            </div>
+
+          </div>
+
+        `;
+
+
+        memoryMatch.innerHTML =
+          "🧠 Match Found (94.8%)";
+
+
+        incidentTitle.innerText =
+          "Incident #204: Connection Leak in DB Proxy";
+
+
+        memoryCause.innerHTML = `
+
+          Hindsight memory retrieved root cause:
+          An unindexed JOIN query in release
+
+          <code class="text-purple-300 bg-purple-900/40 px-1 py-0.5 rounded">
+            v2.4.1
+          </code>
+
+          held open DB connections under spike load.
+
+        `;
+
+
+        resolutionActions.innerHTML = `
+
+          <div class="text-slate-400 text-[11px]">
+            Previous Resolution Action:
+          </div>
+
+          <div class="text-emerald-400 font-mono">
+            1. Scaled DB connections dynamically
+          </div>
+
+          <div class="text-emerald-400 font-mono">
+            2. Rolled back deployment to v2.4.0
+          </div>
+
+        `;
+
+
+        step2Text.innerText =
+          "Increase connection pool limit to 50 on PgBouncer proxy.";
+
+
+        step3Text.innerHTML =
+          'Trigger rollback to stable release image <code class="text-indigo-300">v2.4.0</code>.';
+
+
+        errorStatus.innerText =
+          "DB ERROR DETECTED";
+
+
+        errorStatus.className =
+          "text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded";
+
+
+        runbookStatus.innerText =
+          "DB Fix Ready";
+
+
+        runbookStatus.className =
+          "text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded";
+
+
+        addConsoleMessage(
+          "DB timeout simulated.",
+          "text-red-400"
+        );
+
+        addConsoleMessage(
+          "Hindsight memory searched...",
+          "text-purple-400"
+        );
+
+        addConsoleMessage(
+          "Similar DB incident found. Root cause identified.",
+          "text-emerald-400"
+        );
+
+      }
+
+
+
+      /* REDIS OOM */
+
+      else if (type === "oom") {
+
+
+        log = `
+
+          <div class="p-3 rounded-lg bg-orange-950/40 border border-orange-500/30">
+
+            <div class="flex justify-between items-center gap-2">
+
+              <span class="text-orange-400 font-bold">
+
+                [${time}] ERROR
+
+              </span>
+
+              <span class="text-slate-500">
+
+                redis-cache
+
+              </span>
+
+            </div>
+
+
+            <div class="text-orange-300 mt-2">
+
+              Redis memory usage exceeded 90%
+
+            </div>
+
+
+            <div class="text-slate-500 mt-1">
+
+              /api/v1/cache
+
+            </div>
+
+
+            <div class="text-orange-400/70 mt-1 text-[11px]">
+
+              OutOfMemoryError:
+              Redis maxmemory limit reached
+
+            </div>
+
+          </div>
+
+        `;
+
+
+        memoryMatch.innerHTML =
+          "🧠 Match Found (91.2%)";
+
+
+        incidentTitle.innerText =
+          "Incident #187: Redis Memory Exhaustion";
+
+
+        memoryCause.innerText =
+          "Hindsight memory retrieved root cause: Redis cache keys were not expiring correctly, causing memory usage to continuously increase.";
+
+
+        resolutionActions.innerHTML = `
+
+          <div class="text-slate-400 text-[11px]">
+            Previous Resolution Action:
+          </div>
+
+          <div class="text-emerald-400 font-mono">
+            1. Cleared stale Redis cache keys
+          </div>
+
+          <div class="text-emerald-400 font-mono">
+            2. Increased Redis memory limit
+          </div>
+
+        `;
+
+
+        step2Text.innerText =
+          "Clear stale Redis cache keys and reclaim memory.";
+
+
+        step3Text.innerText =
+          "Increase Redis maxmemory limit and verify cache eviction.";
+
+
+        errorStatus.innerText =
+          "REDIS OOM DETECTED";
+
+
+        errorStatus.className =
+          "text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded";
+
+
+        runbookStatus.innerText =
+          "Redis Fix Ready";
+
+
+        runbookStatus.className =
+          "text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded";
+
+
+        addConsoleMessage(
+          "Redis OOM simulated.",
+          "text-orange-400"
+        );
+
+        addConsoleMessage(
+          "Hindsight memory searched...",
+          "text-purple-400"
+        );
+
+        addConsoleMessage(
+          "Similar Redis incident found. Root cause identified.",
+          "text-emerald-400"
+        );
+
+      }
+
+
+      else {
+
+        console.error(
+          "Unknown simulation type:",
+          type
+        );
+
+        return;
+
+      }
+
+
+      /* ADD LOG */
+
+      logStream.insertAdjacentHTML(
+        "beforeend",
+        log
+      );
+
+
+      /* AUTO SCROLL */
+
+      logStream.scrollTop =
+        logStream.scrollHeight;
+
+    }
+
+
+
+    /* EXECUTE RUNBOOK */
+
+    function executeRunbook() {
+
+
+      const execBtn =
+        document.getElementById("execBtn");
+
+      const runbookStatus =
+        document.getElementById("runbookStatus");
+
+
+      if (!execBtn) {
+        return;
+      }
+
+
+      execBtn.disabled = true;
+
+
+      execBtn.classList.add(
+        "opacity-70",
+        "cursor-not-allowed"
+      );
+
+
+      execBtn.innerHTML = `
+
+        <i class="fa-solid fa-spinner fa-spin"></i>
+
+        Executing...
+
+      `;
+
+
+      if (runbookStatus) {
+
+        runbookStatus.innerText =
+          "Executing";
+
+        runbookStatus.className =
+          "text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded";
+
+      }
+
+
+      addConsoleMessage(
+        "Executing mitigation steps...",
+        "text-yellow-400"
+      );
+
+
+      addConsoleMessage(
+        "Validating selected runbook actions...",
+        "text-slate-400"
+      );
+
+
+      setTimeout(() => {
+
+
+        addConsoleMessage(
+          "Auto-fix completed successfully.",
+          "text-emerald-400"
+        );
+
+
+        addConsoleMessage(
+          "Incident resolved.",
+          "text-emerald-400"
+        );
+
+
+        execBtn.disabled = false;
+
+
+        execBtn.classList.remove(
+          "opacity-70",
+          "cursor-not-allowed"
+        );
+
+
+        execBtn.innerHTML = `
+
+          <i class="fa-solid fa-check"></i>
+
+          Auto-Fix Completed
+
+        `;
+
+
+        if (runbookStatus) {
+
+          runbookStatus.innerText =
+            "Resolved";
+
+          runbookStatus.className =
+            "text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded";
+
+        }
+
+      }, 1500);
+
+    }
+
+
+
+    /* SAVE MEMORY */
+
+    function saveMemory() {
+
+
+      const saveBtn =
+        document.getElementById("saveBtn");
+
+
+      addConsoleMessage(
+        "Resolution saved to Hindsight memory.",
+        "text-purple-400"
+      );
+
+
+      if (!saveBtn) {
+        return;
+      }
+
+
+      const originalText =
+        saveBtn.innerHTML;
+
+
+      saveBtn.innerHTML = `
+
+        <i class="fa-solid fa-check"></i>
+
+        Saved to Memory
+
+      `;
+
+
+      setTimeout(() => {
+
+        saveBtn.innerHTML =
+          originalText;
+
+      }, 2000);
+
+    }
+
+  </script>
+
+</body>
+
+</html>
