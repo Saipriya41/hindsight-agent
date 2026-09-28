@@ -13,4 +13,7 @@ An advanced, AI-powered DevOps Incident Response dashboard designed to monitor s
 * *Frontend:* HTML5, CSS3 (Custom Dashboard Design)
 * *Backend:* Python, Streamlit, AI Agent Logic
 * *Infrastructure:* Docker, Docker Compose, Makefile
-*
+* **LLM / AI Engine**: Grok API
+**Memory Framework**: Hindsight Memory
+  **Environment Management**: `python-dotenv`
+  **Version Control**: Git & GitHub
